@@ -29,7 +29,6 @@ export class SeriesCandlesticksPaneView extends BarsPaneViewBase<'Candlestick', 
 			visibleRange: this._itemsVisibleRange,
 			cornerRadius: candlestickStyleProps.cornerRadius,
 			roundedWickTip: candlestickStyleProps.roundedWickTip,
-			wickRelativeWidth: candlestickStyleProps.wickRelativeWidth,
 		});
 	}
 }

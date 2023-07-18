@@ -92,13 +92,6 @@ export interface CandlestickStyleOptions {
 	 * @defaultValue `true`
 	 */
 	roundedWickTip: boolean;
-
-	/**
-	 * Relative wick width to candle.
-	 *
-	 * @defaultValue `0`
-	 */
-	wickRelativeWidth: number;
 }
 
 export function fillUpDownCandlesticksColors(options: Partial<CandlestickStyleOptions>): void {

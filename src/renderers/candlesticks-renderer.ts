@@ -25,8 +25,6 @@ export interface PaneRendererCandlesticksData {
 	cornerRadius: number;
 
 	roundedWickTip: boolean;
-
-	wickRelativeWidth: number;
 }
 
 const enum Constants {
@@ -89,18 +87,15 @@ export class PaneRendererCandlesticks extends BitmapCoordinatesPaneRenderer {
 
 		let prevWickColor = '';
 		let wickWidth;
-		if (this._data.wickRelativeWidth && this._data.wickRelativeWidth > 0) {
-			wickWidth = Math.round(this._barWidth * this._data.wickRelativeWidth);
-		} else {
-			wickWidth = Math.min(
-				Math.floor(horizontalPixelRatio),
-				Math.floor(this._data.barSpacing * horizontalPixelRatio)
-			);
-			wickWidth = Math.max(
-				Math.floor(horizontalPixelRatio),
-				Math.min(wickWidth, this._barWidth)
-			);
-		}
+
+		wickWidth = Math.min(
+			Math.floor(horizontalPixelRatio),
+			Math.floor(this._data.barSpacing * horizontalPixelRatio)
+		);
+		wickWidth = Math.max(
+			Math.floor(horizontalPixelRatio),
+			Math.min(wickWidth, this._barWidth)
+		);
 
 		for (let i = visibleRange.from; i < visibleRange.to; i++) {
 			const bar = bars[i];
