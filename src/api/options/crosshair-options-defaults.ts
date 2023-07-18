@@ -22,7 +22,7 @@ export const crosshairOptionsDefaults: CrosshairOptions = {
 	centerMarker: {
 		visible: false,
 		color: '#9598A1',
-		width: 1,
-		length: 10,
+		lineWidth: 1,
+		lineLength: 10,
 	},
 };
