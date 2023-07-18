@@ -24,6 +24,12 @@ export class CrosshairPaneView implements IPaneView {
 		},
 		x: 0,
 		y: 0,
+		centerMarker: {
+			lineLength: 0,
+			lineWidth: 1,
+			color: '',
+			visible: false,
+		},
 	};
 	private _renderer: CrosshairRenderer = new CrosshairRenderer(this._rendererData);
 
@@ -61,6 +67,11 @@ export class CrosshairPaneView implements IPaneView {
 		data.vertLine.lineWidth = crosshairOptions.vertLine.width;
 		data.vertLine.lineStyle = crosshairOptions.vertLine.style;
 		data.vertLine.color = crosshairOptions.vertLine.color;
+
+		data.centerMarker.visible = crosshairOptions.centerMarker.visible;
+		data.centerMarker.lineLength = crosshairOptions.centerMarker.length;
+		data.centerMarker.lineWidth = crosshairOptions.centerMarker.width;
+		data.centerMarker.color = crosshairOptions.centerMarker.color;
 
 		data.x = this._source.appliedX();
 		data.y = this._source.appliedY();

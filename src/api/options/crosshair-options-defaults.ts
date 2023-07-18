@@ -19,4 +19,10 @@ export const crosshairOptionsDefaults: CrosshairOptions = {
 		labelBackgroundColor: '#131722',
 	},
 	mode: CrosshairMode.Magnet,
+	centerMarker: {
+		visible: false,
+		color: '#9598A1',
+		width: 1,
+		length: 10,
+	},
 };

@@ -10,9 +10,17 @@ export interface CrosshairLineStyle {
 	visible: boolean;
 }
 
+export interface CenterMarkerStyle {
+	lineLength: number;
+	lineWidth: number;
+	color: string;
+	visible: boolean;
+}
+
 export interface CrosshairRendererData {
 	vertLine: CrosshairLineStyle;
 	horzLine: CrosshairLineStyle;
+	centerMarker: CenterMarkerStyle;
 	x: number;
 	y: number;
 }
@@ -25,6 +33,7 @@ export class CrosshairRenderer extends BitmapCoordinatesPaneRenderer {
 		this._data = data;
 	}
 
+	// eslint-disable-next-line complexity
 	protected override _drawImpl({ context: ctx, bitmapSize, horizontalPixelRatio, verticalPixelRatio }: BitmapCoordinatesRenderingScope): void {
 		if (this._data === null) {
 			return;
@@ -56,6 +65,17 @@ export class CrosshairRenderer extends BitmapCoordinatesPaneRenderer {
 			ctx.fillStyle = this._data.horzLine.color;
 			setLineStyle(ctx, this._data.horzLine.lineStyle);
 			drawHorizontalLine(ctx, y, 0, bitmapSize.width);
+		}
+
+		if (this._data.centerMarker && this._data.centerMarker.visible && vertLinesVisible && horzLinesVisible && x >= 0 && y >= 0) {
+			ctx.lineWidth = this._data.centerMarker.lineWidth;
+			ctx.strokeStyle = this._data.centerMarker.color;
+			ctx.beginPath();
+			ctx.moveTo(x - this._data.centerMarker.lineLength, y);
+			ctx.lineTo(x + this._data.centerMarker.lineLength, y);
+			ctx.moveTo(x, y - this._data.centerMarker.lineLength);
+			ctx.lineTo(x, y + this._data.centerMarker.lineLength);
+			ctx.stroke();
 		}
 	}
 }
