@@ -98,6 +98,37 @@ export interface CrosshairLineOptions {
 	labelBackgroundColor: string;
 }
 
+/** Structure describing a crosshair center marker */
+export interface CrosshairCenterMarkerOptions {
+	/**
+	 * Center marker line color.
+	 *
+	 * @defaultValue `'#758696'`
+	 */
+	color: string;
+
+	/**
+	 * Center marker line width.
+	 *
+	 * @defaultValue `1`
+	 */
+	lineWidth: number;
+
+	/**
+	 * Center marker line length.
+	 *
+	 * @defaultValue `10`
+	 */
+	lineLength: number;
+
+	/**
+	 * Enable center marker.
+	 *
+	 * @defaultValue `false`
+	 */
+	visible: boolean;
+}
+
 /** Structure describing crosshair options  */
 export interface CrosshairOptions {
 	/**
@@ -116,6 +147,11 @@ export interface CrosshairOptions {
 	 * Horizontal line options.
 	 */
 	horzLine: CrosshairLineOptions;
+
+	/**
+	 * Center marker options.
+	 */
+	centerMarker: CrosshairCenterMarkerOptions;
 }
 
 type RawPriceProvider = () => BarPrice;
