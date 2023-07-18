@@ -1,16 +1,15 @@
 {
-  "private": true,
   "version": "4.1.0",
-  "name": "lightweight-charts",
-  "author": "TradingView, Inc.",
+  "name": "sherlock-lightweight-charts",
+  "author": "TradingView, Inc., Forked by Sherlock AI",
   "license": "Apache-2.0",
   "description": "Performant financial charts built with HTML5 canvas",
   "bugs": {
-    "url": "https://github.com/tradingview/lightweight-charts/issues"
+    "url": "https://github.com/trade-copilot/lightweight-charts/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tradingview/lightweight-charts.git"
+    "url": "https://github.com/trade-copilot/lightweight-charts.git"
   },
   "module": "dist/lightweight-charts.production.mjs",
   "main": "index.cjs",
