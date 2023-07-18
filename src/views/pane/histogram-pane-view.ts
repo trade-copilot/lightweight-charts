@@ -23,6 +23,7 @@ export class SeriesHistogramPaneView extends LinePaneViewBase<'Histogram', Histo
 			barSpacing: this._model.timeScale().barSpacing(),
 			visibleRange: this._itemsVisibleRange,
 			histogramBase: this._series.priceScale().priceToCoordinate(this._series.options().base, ensureNotNull(this._series.firstValue()).value),
+			cornerRadius: this._series.options().cornerRadius,
 		};
 
 		this._renderer.setData(data);

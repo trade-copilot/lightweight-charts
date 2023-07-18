@@ -530,6 +530,13 @@ export interface HistogramStyleOptions {
 	 * @defaultValue `0`
 	 */
 	base: number;
+
+	/**
+	 * Corner radius of histogram columns.
+	 *
+	 * @defaultValue `0`
+	 */
+	cornerRadius: number;
 }
 
 /**
