@@ -112,14 +112,14 @@ export interface CrosshairCenterMarkerOptions {
 	 *
 	 * @defaultValue `1`
 	 */
-	width: number;
+	lineWidth: number;
 
 	/**
 	 * Center marker line length.
 	 *
 	 * @defaultValue `10`
 	 */
-	length: number;
+	lineLength: number;
 
 	/**
 	 * Enable center marker.

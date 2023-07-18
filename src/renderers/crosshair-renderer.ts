@@ -68,14 +68,18 @@ export class CrosshairRenderer extends BitmapCoordinatesPaneRenderer {
 		}
 
 		if (this._data.centerMarker && this._data.centerMarker.visible && vertLinesVisible && horzLinesVisible && x >= 0 && y >= 0) {
-			ctx.lineWidth = this._data.centerMarker.lineWidth;
-			ctx.strokeStyle = this._data.centerMarker.color;
-			ctx.beginPath();
-			ctx.moveTo(x - this._data.centerMarker.lineLength, y);
-			ctx.lineTo(x + this._data.centerMarker.lineLength, y);
-			ctx.moveTo(x, y - this._data.centerMarker.lineLength);
-			ctx.lineTo(x, y + this._data.centerMarker.lineLength);
-			ctx.stroke();
+			this._drawCenterMarker(ctx, x, y, this._data.centerMarker);
 		}
+	}
+
+	private _drawCenterMarker(ctx: CanvasRenderingContext2D, x: number, y: number, centerMarker: CenterMarkerStyle): void {
+		ctx.lineWidth = centerMarker.lineWidth;
+		ctx.strokeStyle = centerMarker.color;
+		ctx.beginPath();
+		ctx.moveTo(x - centerMarker.lineLength, y);
+		ctx.lineTo(x + centerMarker.lineLength, y);
+		ctx.moveTo(x, y - centerMarker.lineLength);
+		ctx.lineTo(x, y + centerMarker.lineLength);
+		ctx.stroke();
 	}
 }
