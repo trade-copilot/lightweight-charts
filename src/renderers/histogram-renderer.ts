@@ -17,6 +17,7 @@ export interface PaneRendererHistogramData {
 
 	barSpacing: number;
 	histogramBase: number;
+	cornerRadius: number;
 
 	visibleRange: SeriesItemsIndexesRange | null;
 }
@@ -68,8 +69,23 @@ export class PaneRendererHistogram extends BitmapCoordinatesPaneRenderer {
 				bottom = y - Math.floor(tickWidth / 2) + tickWidth;
 			}
 
-			ctx.fillRect(current.left, top, current.right - current.left + 1, bottom - top);
+			this._fillRoundRect(ctx, current.left, top, current.right - current.left + 1, bottom - top, this._data.cornerRadius);
 		}
+	}
+
+	private _fillRoundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number): void {
+		ctx.beginPath();
+		ctx.moveTo(x + radius, y);
+		ctx.lineTo(x + width - radius, y);
+		ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+		ctx.lineTo(x + width, y + height - radius);
+		ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+		ctx.lineTo(x + radius, y + height);
+		ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+		ctx.lineTo(x, y + radius);
+		ctx.quadraticCurveTo(x, y, x + radius, y);
+		ctx.closePath();
+		ctx.fill();
 	}
 
 	// eslint-disable-next-line complexity
