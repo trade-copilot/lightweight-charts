@@ -68,7 +68,10 @@ export class CrosshairPaneView implements IPaneView {
 		data.vertLine.lineStyle = crosshairOptions.vertLine.style;
 		data.vertLine.color = crosshairOptions.vertLine.color;
 
-		data.centerMarker = { ...crosshairOptions.centerMarker };
+		data.centerMarker.visible = crosshairOptions.centerMarker.visible;
+		data.centerMarker.color = crosshairOptions.centerMarker.color;
+		data.centerMarker.lineWidth = crosshairOptions.centerMarker.lineWidth;
+		data.centerMarker.lineLength = crosshairOptions.centerMarker.lineLength;
 
 		data.x = this._source.appliedX();
 		data.y = this._source.appliedY();
