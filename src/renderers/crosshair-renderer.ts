@@ -41,6 +41,7 @@ export class CrosshairRenderer extends BitmapCoordinatesPaneRenderer {
 
 		const vertLinesVisible = this._data.vertLine.visible;
 		const horzLinesVisible = this._data.horzLine.visible;
+		const centerMarkerVisible = this._data.centerMarker.visible;
 
 		if (!vertLinesVisible && !horzLinesVisible) {
 			return;
@@ -67,12 +68,13 @@ export class CrosshairRenderer extends BitmapCoordinatesPaneRenderer {
 			drawHorizontalLine(ctx, y, 0, bitmapSize.width);
 		}
 
-		if (this._data.centerMarker && this._data.centerMarker.visible && vertLinesVisible && horzLinesVisible && x >= 0 && y >= 0) {
+		if (centerMarkerVisible && vertLinesVisible && horzLinesVisible && x >= 0 && y >= 0) {
 			this._drawCenterMarker(ctx, x, y, this._data.centerMarker);
 		}
 	}
 
 	private _drawCenterMarker(ctx: CanvasRenderingContext2D, x: number, y: number, centerMarker: CenterMarkerStyle): void {
+		setLineStyle(ctx, LineStyle.Solid);
 		ctx.lineWidth = centerMarker.lineWidth;
 		ctx.strokeStyle = centerMarker.color;
 		ctx.beginPath();
