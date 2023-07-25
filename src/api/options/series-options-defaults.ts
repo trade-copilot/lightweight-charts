@@ -99,7 +99,7 @@ export const baselineStyleDefaults: BaselineStyleOptions = {
 export const histogramStyleDefaults: HistogramStyleOptions = {
 	color: '#26a69a',
 	base: 0,
-	cornerRadius: 0,
+	cornerRadius: 0.2,
 };
 
 export const customStyleDefaults: CustomStyleOptions = {
