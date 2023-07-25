@@ -527,7 +527,7 @@ export interface HistogramStyleOptions {
 	/**
 	 * Corner radius of histogram columns.
 	 *
-	 * @defaultValue `0`
+	 * @defaultValue `0.2`
 	 */
 	cornerRadius: number;
 }
