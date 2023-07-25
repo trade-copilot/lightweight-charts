@@ -20,7 +20,7 @@ function runTestCase(container) {
 	const chart = window.chart = LightweightCharts.createChart(container);
 
 	const mainSeries = chart.addHistogramSeries({
-		cornerRadius: 0.5,
+		cornerRadius: 0.2,
 	});
 
 	mainSeries.setData(generateData());
