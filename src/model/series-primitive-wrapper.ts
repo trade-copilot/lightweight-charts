@@ -113,6 +113,7 @@ class SeriesPrimitiveTimeAxisViewWrapper implements ITimeAxisView {
 		this._renderer.setData({
 			width: this._timeScale.width(),
 			...getAxisViewData(this._baseView),
+			labelCornerRadius: 10,
 		});
 		return this._renderer;
 	}

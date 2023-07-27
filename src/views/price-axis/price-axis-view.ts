@@ -14,8 +14,8 @@ export abstract class PriceAxisView implements IPriceAxisView {
 	private readonly _commonRendererData: PriceAxisViewRendererCommonData = {
 		coordinate: 0,
 		background: '#000',
-		additionalPaddingBottom: 0,
-		additionalPaddingTop: 0,
+		additionalPaddingBottom: 3, // for default axis label rounded corners
+		additionalPaddingTop: 3, // for default axis label rounded corners
 	};
 
 	private readonly _axisRendererData: PriceAxisViewRendererData = {
@@ -27,6 +27,7 @@ export abstract class PriceAxisView implements IPriceAxisView {
 		color: '#FFF',
 		borderVisible: false,
 		separatorVisible: false,
+		labelCornerRadius: 10,
 	};
 
 	private readonly _paneRendererData: PriceAxisViewRendererData = {
@@ -38,6 +39,7 @@ export abstract class PriceAxisView implements IPriceAxisView {
 		color: '#FFF',
 		borderVisible: true,
 		separatorVisible: true,
+		labelCornerRadius: 10,
 	};
 
 	private readonly _axisRenderer: IPriceAxisViewRenderer;

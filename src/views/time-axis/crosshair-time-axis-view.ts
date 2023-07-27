@@ -21,6 +21,7 @@ export class CrosshairTimeAxisView implements ITimeAxisView {
 		width: 0,
 		coordinate: NaN,
 		tickVisible: true,
+		labelCornerRadius: 10,
 	};
 
 	public constructor(crosshair: Crosshair, model: IChartModelBase, valueProvider: TimeAndCoordinateProvider) {
@@ -79,5 +80,6 @@ export class CrosshairTimeAxisView implements ITimeAxisView {
 		data.background = colors.background;
 		data.color = colors.foreground;
 		data.tickVisible = timeScale.options().ticksVisible;
+		data.labelCornerRadius = options.labelCornerRadius;
 	}
 }

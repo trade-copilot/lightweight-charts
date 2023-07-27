@@ -23,6 +23,7 @@ export interface PriceAxisViewRendererData {
 	lineWidth?: LineWidth;
 	borderVisible: boolean;
 	separatorVisible: boolean;
+	labelCornerRadius: number;
 }
 
 export interface PriceAxisViewRendererOptions {

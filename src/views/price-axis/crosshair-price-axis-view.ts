@@ -53,5 +53,6 @@ export class CrosshairPriceAxisView extends PriceAxisView {
 		commonRendererData.coordinate = value.coordinate;
 		axisRendererData.text = this._priceScale.formatPrice(value.price, firstValue);
 		axisRendererData.visible = true;
+		axisRendererData.labelCornerRadius = options.labelCornerRadius;
 	}
 }
