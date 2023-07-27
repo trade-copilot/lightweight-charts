@@ -72,6 +72,7 @@ export class PriceAxisViewRenderer implements IPriceAxisViewRenderer {
 
 		const textColor = this._data.color;
 		const backgroundColor = this._commonData.background;
+		const labelCornerRadius = this._data.labelCornerRadius;
 
 		const geometry = target.useBitmapCoordinateSpace((scope: BitmapCoordinatesRenderingScope) => {
 			const ctx = scope.context;
@@ -79,7 +80,11 @@ export class PriceAxisViewRenderer implements IPriceAxisViewRenderer {
 			const geom = this._calculateGeometry(scope, rendererOptions, textWidthCache, align);
 			const gb = geom.bitmap;
 
-			const drawLabelBody = (labelBackgroundColor: string, labelBorderColor?: string): void => {
+			const drawLabelBody = (
+				labelBackgroundColor: string,
+				cornerRadius: number,
+				labelBorderColor?: string
+			): void => {
 				if (geom.alignRight) {
 					drawRoundRectWithInnerBorder(
 						ctx,
@@ -89,7 +94,7 @@ export class PriceAxisViewRenderer implements IPriceAxisViewRenderer {
 						gb.totalHeight,
 						labelBackgroundColor,
 						gb.horzBorder,
-						[gb.radius, 0, 0, gb.radius],
+						cornerRadius,
 						labelBorderColor
 					);
 				} else {
@@ -101,7 +106,7 @@ export class PriceAxisViewRenderer implements IPriceAxisViewRenderer {
 						gb.totalHeight,
 						labelBackgroundColor,
 						gb.horzBorder,
-						[0, gb.radius, gb.radius, 0],
+						cornerRadius,
 						labelBorderColor
 					);
 				}
@@ -109,14 +114,14 @@ export class PriceAxisViewRenderer implements IPriceAxisViewRenderer {
 
 			// draw border
 			// draw label background
-			drawLabelBody(backgroundColor, 'transparent');
+			drawLabelBody(backgroundColor, labelCornerRadius, 'transparent');
 			// draw tick
 			if (this._data.tickVisible) {
 				ctx.fillStyle = textColor;
 				ctx.fillRect(gb.xInside, gb.yMid, gb.xTick - gb.xInside, gb.tickHeight);
 			}
 			// draw label border above the tick
-			drawLabelBody('transparent', backgroundColor);
+			drawLabelBody('transparent', labelCornerRadius, backgroundColor);
 
 			// draw separator
 			if (this._data.borderVisible) {

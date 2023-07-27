@@ -63,6 +63,13 @@ export interface PriceLineOptions {
 	 * @defaultValue `''`
 	 */
 	axisLabelTextColor: string;
+
+	/**
+	 * Corner Radius for the axis label.
+	 *
+	 * @defaultValue `10`
+	 */
+	axisLabelCornerRadius: number;
 }
 
 /**

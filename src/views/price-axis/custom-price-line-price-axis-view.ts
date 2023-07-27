@@ -58,6 +58,7 @@ export class CustomPriceLinePriceAxisView extends PriceAxisView {
 		const textColor = options.axisLabelTextColor || colors.foreground;
 		axisRendererData.color = textColor; // price text
 		paneRendererData.color = textColor; // title text
+		axisRendererData.labelCornerRadius = options.axisLabelCornerRadius; // corner radius for axis label
 
 		commonData.coordinate = y;
 	}

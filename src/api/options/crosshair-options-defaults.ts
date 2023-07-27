@@ -9,6 +9,7 @@ export const crosshairOptionsDefaults: CrosshairOptions = {
 		visible: true,
 		labelVisible: true,
 		labelBackgroundColor: '#131722',
+		labelCornerRadius: 10,
 	},
 	horzLine: {
 		color: '#9598A1',
@@ -17,6 +18,7 @@ export const crosshairOptionsDefaults: CrosshairOptions = {
 		visible: true,
 		labelVisible: true,
 		labelBackgroundColor: '#131722',
+		labelCornerRadius: 10,
 	},
 	mode: CrosshairMode.Magnet,
 	centerMarker: {

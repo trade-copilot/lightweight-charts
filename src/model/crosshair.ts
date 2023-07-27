@@ -96,6 +96,13 @@ export interface CrosshairLineOptions {
 	 * @defaultValue `'#4c525e'`
 	 */
 	labelBackgroundColor: string;
+
+	/**
+	 * Crosshair label corner radius.
+	 *
+	 * @defaultValue `10`
+	 */
+	labelCornerRadius: number;
 }
 
 /** Structure describing a crosshair center marker */

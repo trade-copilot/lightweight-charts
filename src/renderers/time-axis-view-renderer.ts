@@ -12,11 +12,11 @@ export interface TimeAxisViewRendererData {
 	background: string;
 	visible: boolean;
 	tickVisible: boolean;
+	labelCornerRadius: number;
 }
 
 const optimizationReplacementRe = /[1-9]/g;
-
-const radius = 2;
+// const radius = 2;
 
 export class TimeAxisViewRenderer implements ITimeAxisViewRenderer {
 	private _data: TimeAxisViewRendererData | null;
@@ -61,31 +61,34 @@ export class TimeAxisViewRenderer implements ITimeAxisViewRenderer {
 
 		const y1 = 0;
 		const y2 = Math.ceil(
-			y1 +
-			rendererOptions.borderSize +
-			rendererOptions.tickLength +
-			rendererOptions.paddingTop +
-			rendererOptions.fontSize +
-			rendererOptions.paddingBottom
+		y1 +
+		rendererOptions.borderSize +
+		rendererOptions.tickLength +
+		rendererOptions.paddingTop +
+		rendererOptions.fontSize +
+		rendererOptions.paddingBottom
 		);
 
 		target.useBitmapCoordinateSpace(({ context: ctx, horizontalPixelRatio, verticalPixelRatio }: BitmapCoordinatesRenderingScope) => {
 			const data = ensureNotNull(this._data);
-
 			ctx.fillStyle = data.background;
 
 			const x1scaled = Math.round(x1 * horizontalPixelRatio);
 			const y1scaled = Math.round(y1 * verticalPixelRatio);
 			const x2scaled = Math.round(x2 * horizontalPixelRatio);
 			const y2scaled = Math.round(y2 * verticalPixelRatio);
-			const radiusScaled = Math.round(radius * horizontalPixelRatio);
+			const radiusScaled = Math.round(data.labelCornerRadius);
+
 			ctx.beginPath();
-			ctx.moveTo(x1scaled, y1scaled);
-			ctx.lineTo(x1scaled, y2scaled - radiusScaled);
-			ctx.arcTo(x1scaled, y2scaled, x1scaled + radiusScaled, y2scaled, radiusScaled);
-			ctx.lineTo(x2scaled - radiusScaled, y2scaled);
-			ctx.arcTo(x2scaled, y2scaled, x2scaled, y2scaled - radiusScaled, radiusScaled);
-			ctx.lineTo(x2scaled, y1scaled);
+			ctx.moveTo(x1scaled + radiusScaled, y1scaled);
+			ctx.lineTo(x2scaled - radiusScaled, y1scaled);
+			ctx.arcTo(x2scaled, y1scaled, x2scaled, y1scaled + radiusScaled, radiusScaled);
+			ctx.lineTo(x2scaled, y2scaled - radiusScaled);
+			ctx.arcTo(x2scaled, y2scaled, x2scaled - radiusScaled, y2scaled, radiusScaled);
+			ctx.lineTo(x1scaled + radiusScaled, y2scaled);
+			ctx.arcTo(x1scaled, y2scaled, x1scaled, y2scaled - radiusScaled, radiusScaled);
+			ctx.lineTo(x1scaled, y1scaled + radiusScaled);
+			ctx.arcTo(x1scaled, y1scaled, x1scaled + radiusScaled, y1scaled, radiusScaled);
 			ctx.fill();
 
 			if (data.tickVisible) {
@@ -104,11 +107,11 @@ export class TimeAxisViewRenderer implements ITimeAxisViewRenderer {
 			const data = ensureNotNull(this._data);
 
 			const yText =
-				y1 +
-				rendererOptions.borderSize +
-				rendererOptions.tickLength +
-				rendererOptions.paddingTop +
-				rendererOptions.fontSize / 2;
+			y1 +
+			rendererOptions.borderSize +
+			rendererOptions.tickLength +
+			rendererOptions.paddingTop +
+			rendererOptions.fontSize / 2;
 
 			ctx.font = rendererOptions.font;
 			ctx.textAlign = 'left';
