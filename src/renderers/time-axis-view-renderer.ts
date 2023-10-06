@@ -116,6 +116,7 @@ export class TimeAxisViewRenderer implements ITimeAxisViewRenderer {
 			ctx.font = rendererOptions.font;
 			ctx.textAlign = 'left';
 			ctx.textBaseline = 'middle';
+			ctx.textBaseline = 'alphabetic'; // changing text base line to ensure time label to be in center in date pill
 			ctx.fillStyle = data.color;
 
 			const textYCorrection = rendererOptions.widthCache.yMidCorrection(ctx, 'Apr0');

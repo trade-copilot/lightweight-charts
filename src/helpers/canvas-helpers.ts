@@ -68,7 +68,7 @@ export function drawRoundRect(
 	let radiusRightTop: number;
 	let radiusRightBottom: number;
 	let radiusLeftBottom: number;
-
+	const leftX = x + 2.5; // changing this to make label centered in the price pill
 	if (!Array.isArray(radii)) {
 		const oneRadius = Math.max(0, radii);
 		radiusLeftTop = oneRadius;
@@ -92,25 +92,25 @@ export function drawRoundRect(
 	}
 
 	ctx.beginPath();
-	ctx.moveTo(x + radiusLeftTop, y);
-	ctx.lineTo(x + w - radiusRightTop, y);
+	ctx.moveTo(leftX + radiusLeftTop, y);
+	ctx.lineTo(leftX + w - radiusRightTop, y);
 	if (radiusRightTop !== 0) {
-		ctx.arcTo(x + w, y, x + w, y + radiusRightTop, radiusRightTop);
+		ctx.arcTo(leftX + w, y, leftX + w, y + radiusRightTop, radiusRightTop);
 	}
 
-	ctx.lineTo(x + w, y + h - radiusRightBottom);
+	ctx.lineTo(leftX + w, y + h - radiusRightBottom);
 	if (radiusRightBottom !== 0) {
-		ctx.arcTo(x + w, y + h, x + w - radiusRightBottom, y + h, radiusRightBottom);
+		ctx.arcTo(leftX + w, y + h, leftX + w - radiusRightBottom, y + h, radiusRightBottom);
 	}
 
-	ctx.lineTo(x + radiusLeftBottom, y + h);
+	ctx.lineTo(leftX + radiusLeftBottom, y + h);
 	if (radiusLeftBottom !== 0) {
-		ctx.arcTo(x, y + h, x, y + h - radiusLeftBottom, radiusLeftBottom);
+		ctx.arcTo(leftX, y + h, leftX, y + h - radiusLeftBottom, radiusLeftBottom);
 	}
 
-	ctx.lineTo(x, y + radiusLeftTop);
+	ctx.lineTo(leftX, y + radiusLeftTop);
 	if (radiusLeftTop !== 0) {
-		ctx.arcTo(x, y, x + radiusLeftTop, y, radiusLeftTop);
+		ctx.arcTo(leftX, y, leftX + radiusLeftTop, y, radiusLeftTop);
 	}
 }
 
@@ -129,7 +129,10 @@ export function drawRoundRectWithInnerBorder(
 	ctx.save();
 
 	if (!borderWidth || !borderColor || borderColor === backgroundColor) {
-		drawRoundRect(ctx, left, top, width, height, borderRadius);
+		// Adjust left and top coordinates by half of the borderWidth
+		const adjustedLeft = left + borderWidth / 2;
+		const adjustedTop = top + borderWidth / 2;
+		drawRoundRect(ctx, adjustedLeft, adjustedTop, width - borderWidth, height - borderWidth, borderRadius);
 		ctx.fillStyle = backgroundColor;
 		ctx.fill();
 		ctx.restore();
@@ -140,7 +143,7 @@ export function drawRoundRectWithInnerBorder(
 
 	// Draw body
 	if (backgroundColor !== 'transparent') {
-		const innerRadii = changeBorderRadius(borderRadius, - borderWidth);
+		const innerRadii = changeBorderRadius(borderRadius, - halfBorderWidth);
 		drawRoundRect(ctx, left + borderWidth, top + borderWidth, width - borderWidth * 2, height - borderWidth * 2, innerRadii);
 
 		ctx.fillStyle = backgroundColor;
