@@ -505,7 +505,7 @@ export class TimeAxisWidget implements MouseEventHandlers, IDestroyable {
 			rendererOptions.fontSize = fontSize;
 			rendererOptions.font = newFont;
 			rendererOptions.paddingTop = 4 * fontSize / 12; // changing padding top to make time label to be centered to the blue pill
-			rendererOptions.paddingBottom = 1 * fontSize / 12; // changing padding top to make time label to be centered to the blue pill
+			rendererOptions.paddingBottom = 1 * fontSize / 12; // changing padding bottom to make time label to be centered to the blue pill
 			rendererOptions.paddingHorizontal = 9 * fontSize / 12;
 			rendererOptions.baselineOffset = 0;
 			rendererOptions.labelBottomOffset = 4 * fontSize / 12;
