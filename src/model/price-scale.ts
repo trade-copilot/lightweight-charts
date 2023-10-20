@@ -11,7 +11,7 @@ import { BarCoordinates, BarPrice, BarPrices } from './bar';
 import { Coordinate } from './coordinate';
 import { FirstValue, IPriceDataSource } from './iprice-data-source';
 import { LayoutOptions } from './layout-options';
-import { LocalizationOptions } from './localization-options';
+import { LocalizationOptionsBase } from './localization-options';
 import { PriceFormatterFn } from './price-formatter-fn';
 import { PriceRangeImpl } from './price-range-impl';
 import {
@@ -176,6 +176,20 @@ export interface PriceScaleOptions {
 	 * @defaultValue `false`
 	 */
 	ticksVisible: boolean;
+
+	/**
+	 * Define a minimum width for the price scale.
+	 * Note: This value will be exceeded if the
+	 * price scale needs more space to display it's contents.
+	 *
+	 * Setting a minimum width could be useful for ensuring that
+	 * multiple charts positioned in a vertical stack each have
+	 * an identical price scale width, or for plugins which
+	 * require a bit more space within the price scale pane.
+	 *
+	 * @defaultValue 0
+	 */
+	minimumWidth: number;
 }
 
 interface RangeCache {
@@ -198,7 +212,7 @@ export class PriceScale {
 	private readonly _id: string;
 
 	private readonly _layoutOptions: LayoutOptions;
-	private readonly _localizationOptions: LocalizationOptions;
+	private readonly _localizationOptions: LocalizationOptionsBase;
 	private readonly _options: PriceScaleOptions;
 
 	private _height: number = 0;
@@ -227,7 +241,7 @@ export class PriceScale {
 
 	private _logFormula: LogFormula = logFormulaForPriceRange(null);
 
-	public constructor(id: string, options: PriceScaleOptions, layoutOptions: LayoutOptions, localizationOptions: LocalizationOptions) {
+	public constructor(id: string, options: PriceScaleOptions, layoutOptions: LayoutOptions, localizationOptions: LocalizationOptionsBase) {
 		this._id = id;
 		this._options = options;
 		this._layoutOptions = layoutOptions;
@@ -538,7 +552,7 @@ export class PriceScale {
 			sources.push(ds);
 		}
 
-		sources = sortSources(sources);
+		sources = sortSources<IPriceDataSource>(sources);
 		this._cachedOrderedSources = sources;
 		return this._cachedOrderedSources;
 	}
