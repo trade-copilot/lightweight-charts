@@ -44,7 +44,7 @@ export class CrosshairPriceAxisView extends PriceAxisView {
 		commonRendererData.background = colors.background;
 		axisRendererData.color = colors.foreground;
 
-		const additionalPadding = 2 / 12 * this._priceScale.fontSize();
+		const additionalPadding = 3 / 12 * this._priceScale.fontSize(); // changing this to make cross hair price label to be centered in the pill
 
 		commonRendererData.additionalPaddingTop = additionalPadding;
 		commonRendererData.additionalPaddingBottom = additionalPadding;

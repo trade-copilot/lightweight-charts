@@ -59,29 +59,31 @@ export function drawRoundRect(
 	h: number,
 	radii: LeftTopRightTopRightBottomLeftBottomRadii
 ): void {
+	const leftX = x + 2.5; // changing this to make label centered in the price pill
+
 	/**
 	 * As of May 2023, all of the major browsers now support ctx.roundRect() so we should
 	 * be able to switch to the native version soon.
 	 */
 	ctx.beginPath();
-	ctx.lineTo(x + w - radii[1], y);
+	ctx.lineTo(leftX + w - radii[1], y);
 	if (radii[1] !== 0) {
-		ctx.arcTo(x + w, y, x + w, y + radii[1], radii[1]);
+		ctx.arcTo(leftX + w, y, leftX + w, y + radii[1], radii[1]);
 	}
 
-	ctx.lineTo(x + w, y + h - radii[2]);
+	ctx.lineTo(leftX + w, y + h - radii[2]);
 	if (radii[2] !== 0) {
-		ctx.arcTo(x + w, y + h, x + w - radii[2], y + h, radii[2]);
+		ctx.arcTo(leftX + w, y + h, leftX + w - radii[2], y + h, radii[2]);
 	}
 
-	ctx.lineTo(x + radii[3], y + h);
+	ctx.lineTo(leftX + radii[3], y + h);
 	if (radii[3] !== 0) {
-		ctx.arcTo(x, y + h, x, y + h - radii[3], radii[3]);
+		ctx.arcTo(leftX, y + h, leftX, y + h - radii[3], radii[3]);
 	}
 
-	ctx.lineTo(x, y + radii[0]);
+	ctx.lineTo(leftX, y + radii[0]);
 	if (radii[0] !== 0) {
-		ctx.arcTo(x, y, x + radii[0], y, radii[0]);
+		ctx.arcTo(leftX, y, leftX + radii[0], y, radii[0]);
 	}
 }
 
@@ -100,7 +102,10 @@ export function drawRoundRectWithInnerBorder(
 	ctx.save();
 
 	if (!borderWidth || !borderColor || borderColor === backgroundColor) {
-		drawRoundRect(ctx, left, top, width, height, borderRadius);
+		// Adjust left and top coordinates by half of the borderWidth
+		const adjustedLeft = left + borderWidth / 2;
+		const adjustedTop = top + borderWidth / 2;
+		drawRoundRect(ctx, adjustedLeft, adjustedTop, width - borderWidth, height - borderWidth, borderRadius);
 		ctx.fillStyle = backgroundColor;
 		ctx.fill();
 		ctx.restore();
@@ -111,7 +116,7 @@ export function drawRoundRectWithInnerBorder(
 
 	// Draw body
 	if (backgroundColor !== 'transparent') {
-		const innerRadii = changeBorderRadius(borderRadius, - borderWidth);
+		const innerRadii = changeBorderRadius(borderRadius, - halfBorderWidth);
 		drawRoundRect(ctx, left + borderWidth, top + borderWidth, width - borderWidth * 2, height - borderWidth * 2, innerRadii);
 
 		ctx.fillStyle = backgroundColor;

@@ -94,7 +94,7 @@ export class PriceAxisViewRenderer implements IPriceAxisViewRenderer {
 						gb.totalHeight,
 						labelBackgroundColor,
 						gb.horzBorder,
-						cornerRadius,
+						[cornerRadius, cornerRadius, cornerRadius, cornerRadius],
 						labelBorderColor
 					);
 				} else {
@@ -106,7 +106,7 @@ export class PriceAxisViewRenderer implements IPriceAxisViewRenderer {
 						gb.totalHeight,
 						labelBackgroundColor,
 						gb.horzBorder,
-						cornerRadius,
+						[cornerRadius, cornerRadius, cornerRadius, cornerRadius],
 						labelBorderColor
 					);
 				}

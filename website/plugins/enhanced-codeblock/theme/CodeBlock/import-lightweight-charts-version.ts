@@ -3,7 +3,7 @@ import type { Version } from '../../../../versions';
 
 export type LightweightChartsApi38 = typeof import('lightweight-charts-3.8');
 export type LightweightChartsApi40 = typeof import('lightweight-charts-4.0');
-export type LightweightChartsApi41 = typeof import('lightweight-charts-4.1');
+export type LightweightChartsApi41 = typeof import('lightweight-charts');
 export type LightweightChartsApiCurrent = typeof import('../../../../..');
 
 export interface LightweightChartsApiTypeMap {
@@ -64,7 +64,7 @@ export const importLightweightChartsVersion: LightweightChartsApiGetters = {
 		return { module, createChart };
 	},
 	4.1: async (window: Window) => {
-		const module = await import('lightweight-charts-4.1');
+		const module = await import('lightweight-charts');
 
 		const createChart: typeof module.createChart = (container: string | HTMLElement, options?: Parameters<typeof module.createChart>[1]) => {
 			const result = module.createChart(container, options);
