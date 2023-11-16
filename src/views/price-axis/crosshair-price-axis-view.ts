@@ -1,6 +1,6 @@
 import { generateContrastColors } from '../../helpers/color';
 
-import { Crosshair, CrosshairPriceAndCoordinate } from '../../model/crosshair';
+import { Crosshair, CrosshairMode, CrosshairPriceAndCoordinate } from '../../model/crosshair';
 import { PriceScale } from '../../model/price-scale';
 import { PriceAxisViewRendererCommonData, PriceAxisViewRendererData } from '../../renderers/iprice-axis-view-renderer';
 
@@ -26,6 +26,10 @@ export class CrosshairPriceAxisView extends PriceAxisView {
 		commonRendererData: PriceAxisViewRendererCommonData
 	): void {
 		axisRendererData.visible = false;
+		if (this._source.options().mode === CrosshairMode.Hidden) {
+			return;
+		}
+
 		const options = this._source.options().horzLine;
 		if (!options.labelVisible) {
 			return;
@@ -40,7 +44,7 @@ export class CrosshairPriceAxisView extends PriceAxisView {
 		commonRendererData.background = colors.background;
 		axisRendererData.color = colors.foreground;
 
-		const additionalPadding = 2 / 12 * this._priceScale.fontSize();
+		const additionalPadding = 3 / 12 * this._priceScale.fontSize(); // changing this to make cross hair price label to be centered in the pill
 
 		commonRendererData.additionalPaddingTop = additionalPadding;
 		commonRendererData.additionalPaddingBottom = additionalPadding;

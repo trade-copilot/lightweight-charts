@@ -11,5 +11,5 @@ export const priceLineOptionsDefaults: PriceLineOptions = {
 	title: '',
 	axisLabelColor: '',
 	axisLabelTextColor: '',
-	axisLabelCornerRadius: 10,
+	axisLabelCornerRadius: 11, // changing label corner radius to make default price line with perfect corners
 };

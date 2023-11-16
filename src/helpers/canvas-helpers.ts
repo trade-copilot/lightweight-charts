@@ -44,15 +44,10 @@ export function clearRect(ctx: CanvasRenderingContext2D, x: number, y: number, w
 	ctx.restore();
 }
 
-export type TopBottomRadii = [number, number];
 export type LeftTopRightTopRightBottomLeftBottomRadii = [number, number, number, number];
-export type DrawRoundRectRadii = number | TopBottomRadii | LeftTopRightTopRightBottomLeftBottomRadii;
 
-function changeBorderRadius(borderRadius: DrawRoundRectRadii, offset: number): typeof borderRadius {
-	if (Array.isArray(borderRadius)) {
-		return borderRadius.map((x: number) => x === 0 ? x : x + offset) as typeof borderRadius;
-	}
-	return borderRadius + offset;
+function changeBorderRadius(borderRadius: LeftTopRightTopRightBottomLeftBottomRadii, offset: number): typeof borderRadius {
+	return borderRadius.map((x: number) => x === 0 ? x : x + offset) as typeof borderRadius;
 }
 
 export function drawRoundRect(
@@ -62,55 +57,33 @@ export function drawRoundRect(
 	y: number,
 	w: number,
 	h: number,
-	radii: DrawRoundRectRadii
+	radii: LeftTopRightTopRightBottomLeftBottomRadii
 ): void {
-	let radiusLeftTop: number;
-	let radiusRightTop: number;
-	let radiusRightBottom: number;
-	let radiusLeftBottom: number;
+	const leftX = x + 2.5; // changing this to make label centered in the price pill
 
-	if (!Array.isArray(radii)) {
-		const oneRadius = Math.max(0, radii);
-		radiusLeftTop = oneRadius;
-		radiusRightTop = oneRadius;
-		radiusRightBottom = oneRadius;
-		radiusLeftBottom = oneRadius;
-	} else if (radii.length === 2) {
-		const cornerRadius1 = Math.max(0, radii[0]);
-		const cornerRadius2 = Math.max(0, radii[1]);
-		radiusLeftTop = cornerRadius1;
-		radiusRightTop = cornerRadius1;
-		radiusRightBottom = cornerRadius2;
-		radiusLeftBottom = cornerRadius2;
-	} else if (radii.length === 4) {
-		radiusLeftTop = Math.max(0, radii[0]);
-		radiusRightTop = Math.max(0, radii[1]);
-		radiusRightBottom = Math.max(0, radii[2]);
-		radiusLeftBottom = Math.max(0, radii[3]);
-	} else {
-		throw new Error(`Wrong border radius - it should be like css border radius`);
-	}
-
+	/**
+	 * As of May 2023, all of the major browsers now support ctx.roundRect() so we should
+	 * be able to switch to the native version soon.
+	 */
 	ctx.beginPath();
-	ctx.moveTo(x + radiusLeftTop, y);
-	ctx.lineTo(x + w - radiusRightTop, y);
-	if (radiusRightTop !== 0) {
-		ctx.arcTo(x + w, y, x + w, y + radiusRightTop, radiusRightTop);
+	ctx.lineTo(leftX + w - radii[1], y);
+	if (radii[1] !== 0) {
+		ctx.arcTo(leftX + w, y, leftX + w, y + radii[1], radii[1]);
 	}
 
-	ctx.lineTo(x + w, y + h - radiusRightBottom);
-	if (radiusRightBottom !== 0) {
-		ctx.arcTo(x + w, y + h, x + w - radiusRightBottom, y + h, radiusRightBottom);
+	ctx.lineTo(leftX + w, y + h - radii[2]);
+	if (radii[2] !== 0) {
+		ctx.arcTo(leftX + w, y + h, leftX + w - radii[2], y + h, radii[2]);
 	}
 
-	ctx.lineTo(x + radiusLeftBottom, y + h);
-	if (radiusLeftBottom !== 0) {
-		ctx.arcTo(x, y + h, x, y + h - radiusLeftBottom, radiusLeftBottom);
+	ctx.lineTo(leftX + radii[3], y + h);
+	if (radii[3] !== 0) {
+		ctx.arcTo(leftX, y + h, leftX, y + h - radii[3], radii[3]);
 	}
 
-	ctx.lineTo(x, y + radiusLeftTop);
-	if (radiusLeftTop !== 0) {
-		ctx.arcTo(x, y, x + radiusLeftTop, y, radiusLeftTop);
+	ctx.lineTo(leftX, y + radii[0]);
+	if (radii[0] !== 0) {
+		ctx.arcTo(leftX, y, leftX + radii[0], y, radii[0]);
 	}
 }
 
@@ -123,13 +96,16 @@ export function drawRoundRectWithInnerBorder(
 	height: number,
 	backgroundColor: string,
 	borderWidth: number = 0,
-	borderRadius: DrawRoundRectRadii = 0,
+	borderRadius: LeftTopRightTopRightBottomLeftBottomRadii = [0, 0, 0, 0],
 	borderColor: string = ''
 ): void {
 	ctx.save();
 
 	if (!borderWidth || !borderColor || borderColor === backgroundColor) {
-		drawRoundRect(ctx, left, top, width, height, borderRadius);
+		// Adjust left and top coordinates by half of the borderWidth
+		const adjustedLeft = left + borderWidth / 2;
+		const adjustedTop = top + borderWidth / 2;
+		drawRoundRect(ctx, adjustedLeft, adjustedTop, width - borderWidth, height - borderWidth, borderRadius);
 		ctx.fillStyle = backgroundColor;
 		ctx.fill();
 		ctx.restore();
@@ -140,7 +116,7 @@ export function drawRoundRectWithInnerBorder(
 
 	// Draw body
 	if (backgroundColor !== 'transparent') {
-		const innerRadii = changeBorderRadius(borderRadius, - borderWidth);
+		const innerRadii = changeBorderRadius(borderRadius, - halfBorderWidth);
 		drawRoundRect(ctx, left + borderWidth, top + borderWidth, width - borderWidth * 2, height - borderWidth * 2, innerRadii);
 
 		ctx.fillStyle = backgroundColor;

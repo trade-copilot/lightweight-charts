@@ -27,7 +27,7 @@ export abstract class PriceAxisView implements IPriceAxisView {
 		color: '#FFF',
 		borderVisible: false,
 		separatorVisible: false,
-		labelCornerRadius: 10,
+		labelCornerRadius: 11, // changing label corner radius to make default price line with perfect corners
 	};
 
 	private readonly _paneRendererData: PriceAxisViewRendererData = {
@@ -39,7 +39,7 @@ export abstract class PriceAxisView implements IPriceAxisView {
 		color: '#FFF',
 		borderVisible: true,
 		separatorVisible: true,
-		labelCornerRadius: 10,
+		labelCornerRadius: 11, // changing label corner radius to make default price line with perfect corners
 	};
 
 	private readonly _axisRenderer: IPriceAxisViewRenderer;
