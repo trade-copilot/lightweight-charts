@@ -9,12 +9,14 @@ import {
 	tryCreateCanvasRenderingTarget2D,
 } from 'fancy-canvas';
 
+import { ensureNotNull } from '../helpers/assertions';
 import { clearRect } from '../helpers/canvas-helpers';
 import { Delegate } from '../helpers/delegate';
 import { IDestroyable } from '../helpers/idestroyable';
 import { ISubscription } from '../helpers/isubscription';
 import { makeFont } from '../helpers/make-font';
 
+import { Coordinate } from '../model/coordinate';
 import { IDataSource } from '../model/idata-source';
 import { IHorzScaleBehavior } from '../model/ihorz-scale-behavior';
 import { InvalidationLevel } from '../model/invalidate-mask';
@@ -22,8 +24,11 @@ import { SeriesPrimitivePaneViewZOrder } from '../model/iseries-primitive';
 import { LayoutOptions } from '../model/layout-options';
 import { Pane } from '../model/pane';
 import { TextWidthCache } from '../model/text-width-cache';
+import { TickMarkWeightValue, TimePointIndex, TimeScalePoint } from '../model/time-data';
+import { DatesOptions, HighlightedDates, TimeMark } from '../model/time-scale';
 import { IPaneRenderer } from '../renderers/ipane-renderer';
 import { TimeAxisViewRendererOptions } from '../renderers/itime-axis-view-renderer';
+import { TimeAxisViewRendererData } from '../renderers/time-axis-view-renderer';
 import { IAxisView } from '../views/pane/iaxis-view';
 
 import { createBoundCanvas } from './canvas-utils';
@@ -42,6 +47,8 @@ const enum CursorType {
 	Default,
 	EwResize,
 }
+
+const optimizationReplacementRe = /[1-9]/g;
 
 function buildTimeAxisViewsGetter(zOrder: SeriesPrimitivePaneViewZOrder): ITimeAxisViewsGetter {
 	return (source: IDataSource): readonly IAxisView[] => source.timePaneViews?.(zOrder) ?? [];
@@ -368,9 +375,129 @@ export class TimeAxisWidget<HorzScaleItem> implements MouseEventHandlers, IDestr
 		}
 	}
 
+	private _highlightDatesDraw(target: CanvasRenderingTarget2D, rendererOptions: TimeAxisViewRendererOptions, data: TimeAxisViewRendererData | null): void {
+		if (data === null || data?.visible === false || data?.text.length === 0) {
+			return;
+		}
+
+		const textWidth = target.useMediaCoordinateSpace(({ context: ctx }: MediaCoordinatesRenderingScope) => {
+			ctx.font = rendererOptions.font;
+			return Math.round(rendererOptions.widthCache.measureText(ctx, data.text, optimizationReplacementRe));
+		});
+		if (textWidth <= 0) {
+			return;
+		}
+
+		const horzMargin = rendererOptions.paddingHorizontal;
+		const labelWidth = textWidth + 2 * horzMargin;
+		const labelWidthHalf = labelWidth / 2;
+		const timeScaleWidth = data.width;
+		let coordinate = data.coordinate;
+		let x1 = Math.floor(coordinate - labelWidthHalf) + 0.5;
+
+		if (x1 < 0) {
+			coordinate = coordinate + Math.abs(0 - x1);
+			x1 = Math.floor(coordinate - labelWidthHalf) + 0.5;
+		} else if (x1 + labelWidth > timeScaleWidth) {
+			coordinate = coordinate - Math.abs(timeScaleWidth - (x1 + labelWidth));
+			x1 = Math.floor(coordinate - labelWidthHalf) + 0.5;
+		}
+
+		const x2 = x1 + labelWidth;
+
+		const y1 = 0;
+		const y2 = Math.ceil(
+		y1 +
+		rendererOptions.borderSize +
+		rendererOptions.tickLength +
+		rendererOptions.paddingTop +
+		rendererOptions.fontSize +
+		rendererOptions.paddingBottom
+		);
+
+		target.useBitmapCoordinateSpace(({ context: ctx, horizontalPixelRatio, verticalPixelRatio }: BitmapCoordinatesRenderingScope) => {
+			ctx.fillStyle = data.background;
+
+			const x1scaled = Math.round(x1 * horizontalPixelRatio);
+			const y1scaled = Math.round(y1 * verticalPixelRatio);
+			const x2scaled = Math.round(x2 * horizontalPixelRatio);
+			const y2scaled = Math.round(y2 * verticalPixelRatio);
+			const radiusScaled = Math.round(data.labelCornerRadius);
+
+			ctx.beginPath();
+			ctx.moveTo(x1scaled + radiusScaled, y1scaled);
+			ctx.lineTo(x2scaled - radiusScaled, y1scaled);
+			ctx.arcTo(x2scaled, y1scaled, x2scaled, y1scaled + radiusScaled, radiusScaled);
+			ctx.lineTo(x2scaled, y2scaled - radiusScaled);
+			ctx.arcTo(x2scaled, y2scaled, x2scaled - radiusScaled, y2scaled, radiusScaled);
+			ctx.lineTo(x1scaled + radiusScaled, y2scaled);
+			ctx.arcTo(x1scaled, y2scaled, x1scaled, y2scaled - radiusScaled, radiusScaled);
+			ctx.lineTo(x1scaled, y1scaled + radiusScaled);
+			ctx.arcTo(x1scaled, y1scaled, x1scaled + radiusScaled, y1scaled, radiusScaled);
+			ctx.fill();
+
+			if (data.tickVisible) {
+				const tickX = Math.round(data.coordinate * horizontalPixelRatio);
+				const tickTop = y1scaled;
+				const tickBottom = Math.round((tickTop + rendererOptions.tickLength) * verticalPixelRatio);
+
+				ctx.fillStyle = data.color;
+				const tickWidth = Math.max(1, Math.floor(horizontalPixelRatio));
+				const tickOffset = Math.floor(horizontalPixelRatio * 0.5);
+				ctx.fillRect(tickX - tickOffset, tickTop, tickWidth, tickBottom - tickTop);
+			}
+		});
+
+		target.useMediaCoordinateSpace(({ context: ctx }: MediaCoordinatesRenderingScope) => {
+			const yText =
+			y1 +
+			rendererOptions.borderSize +
+			rendererOptions.tickLength +
+			rendererOptions.paddingTop +
+			rendererOptions.fontSize / 2;
+
+			ctx.font = rendererOptions.font;
+			ctx.textAlign = 'left';
+			ctx.textBaseline = 'middle';
+			ctx.textBaseline = 'alphabetic'; // changing text base line to ensure time label to be in center in date pill
+			ctx.fillStyle = data.color;
+
+			const textYCorrection = rendererOptions.widthCache.yMidCorrection(ctx, 'Apr0');
+
+			ctx.translate(x1 + horzMargin, yText + textYCorrection);
+			ctx.fillText(data.text, 0, 0);
+		});
+	}
+
+	private _setHighLightedDatesData(highlightedCoords: { coordinate: Coordinate; options: DatesOptions }[], tickMark: TimeMark, coordinate: Coordinate, selectedIndex: number): TimeAxisViewRendererData {
+		const timeScale = this._chart.model().timeScale();
+		const options = timeScale.options();
+		const dateOptions = highlightedCoords[selectedIndex].options;
+		const timeOptions = {
+			width: timeScale.width(),
+			text: tickMark.label,
+			coordinate,
+			color: 'white',
+			background: 'black',
+			visible: true,
+			tickVisible: options.ticksVisible,
+			labelCornerRadius: 10,
+		};
+		if (dateOptions) {
+			timeOptions.background = dateOptions.background;
+			timeOptions.color = dateOptions.color;
+			timeOptions.labelCornerRadius = dateOptions.labelCornerRadius;
+			timeOptions.visible = dateOptions.visible;
+			timeOptions.width = dateOptions.width;
+		}
+		return timeOptions;
+	}
+
 	private _drawTickMarks(target: CanvasRenderingTarget2D): void {
 		const timeScale = this._chart.model().timeScale();
+		const points = timeScale.getPoints();
 		const tickMarks = timeScale.marks();
+		const highlightedCoords: {coordinate: Coordinate; options: DatesOptions}[] = [];
 
 		if (!tickMarks || tickMarks.length === 0) {
 			return;
@@ -379,55 +506,118 @@ export class TimeAxisWidget<HorzScaleItem> implements MouseEventHandlers, IDestr
 		const maxWeight = this._horzScaleBehavior.maxTickMarkWeight(tickMarks);
 
 		const rendererOptions = this._getRendererOptions();
-
 		const options = timeScale.options();
-		if (options.borderVisible && options.ticksVisible) {
-			target.useBitmapCoordinateSpace(({ context: ctx, horizontalPixelRatio, verticalPixelRatio }: BitmapCoordinatesRenderingScope) => {
-				ctx.strokeStyle = this._lineColor();
-				ctx.fillStyle = this._lineColor();
 
-				const tickWidth = Math.max(1, Math.floor(horizontalPixelRatio));
-				const tickOffset = Math.floor(horizontalPixelRatio * 0.5);
+		if (options.highlightedDates?.length) {
+			options.highlightedDates?.map((item: HighlightedDates) => {
+				let text = '';
+				const coord = timeScale.indexToCoordinate(item.index as TimePointIndex);
+				const selectedPoint = points.find((i: TimeScalePoint) => i.originalTime === item.time);
+				if (selectedPoint) {text = timeScale.formatDateTime(ensureNotNull(selectedPoint));}
+				const marks: TimeMark = {
+					needAlignCoordinate: false,
+					label: text,
+					coord,
+					weight: selectedPoint?.timeWeight as TickMarkWeightValue,
+				};
 
-				ctx.beginPath();
-				const tickLen = Math.round(rendererOptions.tickLength * verticalPixelRatio);
-				for (let index = tickMarks.length; index--;) {
-					const x = Math.round(tickMarks[index].coord * horizontalPixelRatio);
-					ctx.rect(x - tickOffset, 0, tickWidth, tickLen);
+				const index = tickMarks.findIndex((i: TimeMark) => i.coord === marks.coord);
+				if (index > -1) {
+					tickMarks.splice(index, 1);
+					tickMarks.push(marks);
+				} else {
+					tickMarks.push(marks);
 				}
 
-				ctx.fill();
+				if (coord) {
+					highlightedCoords.push({ coordinate: coord, options: item.options });
+				}
+
+				return null;
 			});
 		}
 
-		target.useMediaCoordinateSpace(({ context: ctx }: MediaCoordinatesRenderingScope) => {
-			const yText = (
-				rendererOptions.borderSize +
-				rendererOptions.tickLength +
-				rendererOptions.paddingTop +
-				rendererOptions.fontSize / 2
+		if (options.borderVisible && options.ticksVisible) {
+			target.useBitmapCoordinateSpace(
+				({
+					context: ctx,
+					horizontalPixelRatio,
+					verticalPixelRatio,
+				}: BitmapCoordinatesRenderingScope) => {
+					ctx.strokeStyle = this._lineColor();
+					ctx.fillStyle = this._lineColor();
+
+					const tickWidth = Math.max(1, Math.floor(horizontalPixelRatio));
+					const tickOffset = Math.floor(horizontalPixelRatio * 0.5);
+
+					ctx.beginPath();
+					const tickLen = Math.round(
+						rendererOptions.tickLength * verticalPixelRatio
+					);
+					for (let index = tickMarks.length; index--;) {
+						if (!(highlightedCoords.some((i: {coordinate: Coordinate; options: DatesOptions}) => i.coordinate === tickMarks[index].coord))) {
+							const x = Math.round(tickMarks[index].coord * horizontalPixelRatio);
+							ctx.rect(x - tickOffset, 0, tickWidth, tickLen);
+						}
+					}
+
+					ctx.fill();
+				}
 			);
+		}
 
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'middle';
-			ctx.fillStyle = this._textColor();
+		target.useMediaCoordinateSpace(
+				({ context: ctx }: MediaCoordinatesRenderingScope) => {
+					const yText =
+						rendererOptions.borderSize +
+						rendererOptions.tickLength +
+						rendererOptions.paddingTop +
+						rendererOptions.fontSize / 2;
 
-			// draw base marks
-			ctx.font = this._baseFont();
-			for (const tickMark of tickMarks) {
-				if (tickMark.weight < maxWeight) {
-					const coordinate = tickMark.needAlignCoordinate ? this._alignTickMarkLabelCoordinate(ctx, tickMark.coord, tickMark.label) : tickMark.coord;
-					ctx.fillText(tickMark.label, coordinate, yText);
+					ctx.textAlign = 'center';
+					ctx.textBaseline = 'middle';
+					ctx.fillStyle = this._textColor();
+
+					// draw base marks
+					ctx.font = this._baseFont();
+					for (const tickMark of tickMarks) {
+						if (tickMark.weight < maxWeight) {
+							const coordinate = tickMark.needAlignCoordinate
+								? this._alignTickMarkLabelCoordinate(
+										ctx,
+										tickMark.coord,
+										tickMark.label
+								)
+								: tickMark.coord;
+							ctx.fillStyle = 'black';
+							const selectedIndex = highlightedCoords?.findIndex((i: {coordinate: Coordinate; options: DatesOptions}) => i.coordinate === tickMark.coord);
+							if (selectedIndex > -1) {
+								const timeOptions = this._setHighLightedDatesData(highlightedCoords, tickMark, coordinate as Coordinate, selectedIndex);
+								this._highlightDatesDraw(target, rendererOptions, timeOptions);
+							} else {ctx.fillText(tickMark.label, coordinate, yText);}
+						}
+					}
+					ctx.font = this._baseBoldFont();
+					for (const tickMark of tickMarks) {
+						if (tickMark.weight >= maxWeight) {
+							const coordinate = tickMark.needAlignCoordinate
+								? this._alignTickMarkLabelCoordinate(
+										ctx,
+										tickMark.coord,
+										tickMark.label
+								)
+								: tickMark.coord;
+							ctx.fillStyle = 'black';
+
+							const selectedIndex = highlightedCoords?.findIndex((i: {coordinate: Coordinate; options: DatesOptions}) => i.coordinate === tickMark.coord);
+							if (selectedIndex > -1) {
+								const timeOptions = this._setHighLightedDatesData(highlightedCoords, tickMark, coordinate as Coordinate, selectedIndex);
+								this._highlightDatesDraw(target, rendererOptions, timeOptions);
+							} else {ctx.fillText(tickMark.label, coordinate, yText);}
+						}
+					}
 				}
-			}
-			ctx.font = this._baseBoldFont();
-			for (const tickMark of tickMarks) {
-				if (tickMark.weight >= maxWeight) {
-					const coordinate = tickMark.needAlignCoordinate ? this._alignTickMarkLabelCoordinate(ctx, tickMark.coord, tickMark.label) : tickMark.coord;
-					ctx.fillText(tickMark.label, coordinate, yText);
-				}
-			}
-		});
+			);
 	}
 
 	private _alignTickMarkLabelCoordinate(ctx: CanvasRenderingContext2D, coordinate: number, labelText: string): number {

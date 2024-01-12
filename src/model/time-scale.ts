@@ -8,6 +8,7 @@ import { DeepPartial, isInteger, merge } from '../helpers/strict-type-checks';
 import { ChartModel } from './chart-model';
 import { Coordinate } from './coordinate';
 import { FormattedLabelsCache } from './formatted-labels-cache';
+import { Time } from './horz-scale-behavior-time/types';
 import { IHorzScaleBehavior, InternalHorzScaleItem, InternalHorzScaleItemKey } from './ihorz-scale-behavior';
 import { LocalizationOptions } from './localization-options';
 import { areRangesEqual, RangeImpl } from './range-impl';
@@ -36,6 +37,22 @@ const enum Constants {
 interface TransitionState {
 	barSpacing: number;
 	rightOffset: number;
+}
+
+export interface DatesOptions {
+	width: number;
+	color: string;
+	background: string;
+	visible: boolean;
+	labelCornerRadius: number;
+}
+
+export interface HighlightedDates {
+	time: Time;
+	coordinate: Coordinate;
+	text: string;
+	index: number;
+	options: DatesOptions;
 }
 
 /**
@@ -185,6 +202,8 @@ export interface HorzScaleOptions {
 	 * @defaultValue 0
 	 */
 	minimumHeight: number;
+
+	highlightedDates: HighlightedDates[] | null;
 }
 
 export interface ITimeScale {
@@ -249,6 +268,10 @@ export class TimeScale<HorzScaleItem> implements ITimeScale {
 		this._updateDateTimeFormatter();
 
 		this._tickMarks.setUniformDistribution(options.uniformDistribution);
+	}
+
+	public getPoints(): Readonly<TimeScalePoint[]> {
+		return this._points;
 	}
 
 	public options(): Readonly<HorzScaleOptions> {
