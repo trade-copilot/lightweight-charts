@@ -17,4 +17,5 @@ export const timeScaleOptionsDefaults: HorzScaleOptions = {
 	ticksVisible: false,
 	uniformDistribution: false,
 	minimumHeight: 0,
+	highlightedDates: null,
 };
